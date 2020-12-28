@@ -1,5 +1,4 @@
-import { getQueriesForElement } from '@testing-library/dom';
-import { command } from './command';
+import { getQueriesForElement, wait } from '@testing-library/dom';
 
 let queries = getQueriesForElement(document.body);
 
@@ -10,20 +9,7 @@ class PostMessageError extends Error {
 }
 
 export class IFrame {
-  public element: HTMLIFrameElement;
-
-  constructor() {
-    const iframe = document.createElement('iframe');
-
-    iframe.src = '';
-    iframe.height = '600';
-    iframe.width = '100%';
-    iframe.frameBorder = '0';
-    iframe.style.borderTop = '1px solid #CCC';
-    iframe.style.borderBottom = '1px solid #CCC';
-
-    this.element = iframe;
-  }
+  constructor(public readonly element: HTMLIFrameElement) {}
 
   get contentWindow() {
     return this.element.contentWindow;
@@ -72,9 +58,14 @@ export class IFrame {
     });
   }
 
-  // async clearCookies(domain: string) {
-  //   return command(window.location.href, { type: 'clearCookies', target: 'background_script', domain });
-  // }
+  async clearCookies(domain: string) {
+    const now = new Date().toUTCString();
+
+    this.document?.cookie.split(';').forEach(c => {
+      this.document!.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${now};path=/`);
+    });
+    // return this.postMessage(window.location.href, { type: 'clearCookies', target: 'background_script', domain });
+  }
 
   async clearLocalStorage() {
     return this.postMessage({ type: 'clearLocalStorage', target: 'content_script' });
@@ -88,12 +79,39 @@ export class IFrame {
     return this.postMessage({ type: 'setLocalStorageItem', target: 'content_script', key, value });
   }
 
+  private async injectContentScript() {
+    const { document, body } = this;
+
+    if (!document || !body) {
+      throw new Error();
+    }
+
+    return new Promise<void>(resolve => {
+      const handleMessage = ({ data }: any) => {
+        if (!data || !data.__test_runner_content_script__) {
+          return;
+        }
+
+        this.contentWindow?.removeEventListener('message', handleMessage);
+        resolve();
+      };
+
+      this.contentWindow?.addEventListener('message', handleMessage);
+
+      const script = document.createElement('script');
+
+      script.src = 'http://localhost:7357/content_script.js';
+      body.appendChild(script);
+    });
+  }
+
   async navigate(url: string) {
     return new Promise<typeof queries>(resolve => {
-      this.element.onload = () => {
+      this.element.onload = async () => {
         this.element.onload = null;
 
         if (this.body) {
+          await this.injectContentScript();
           queries = getQueriesForElement(this.body);
         }
 

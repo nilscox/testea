@@ -10,7 +10,7 @@ const launch = async (baseDir, argv) => {
   const specs = files.map(file => file.replace(/\.ts$/, '.js')).map(file => `'/${file}'`);
 
   const { runner, handleMochaLifecycle } = setupMocha();
-  const shutdown = await devServer(baseDir, specs);
+  const shutdown = await devServer(baseDir, specs, argv.dir);
   const { startEventsLoop, stopEventsLoop, takeScreenshot } = await browser();
 
   runner.on('end', stopEventsLoop);

@@ -36,3 +36,5 @@ window.addEventListener('message', message => {
     handleMessage({ success: false, error });
   }
 });
+
+window.postMessage({ __test_runner_content_script__: true });

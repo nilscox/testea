@@ -1,10 +1,12 @@
-import chai, { expect } from 'chai';
+import 'mocha';
+import chai from 'chai';
 import chaiDom from 'chai-dom';
-import mocha from 'mocha/browser-entry';
 
 import 'mocha/mocha.css';
 
 import { IFrame } from './iframe';
+
+export * from './iframe';
 
 mocha.setup('bdd');
 chai.use(chaiDom);
@@ -39,12 +41,7 @@ export const setup = (runner: Mocha.Runner) => {
   });
 
   before(function () {
-    const iframe = (this.iframe = new IFrame());
-    document.body.appendChild(this.iframe.element);
-
-    const script = iframe.document!.createElement('script');
-    script.src = '/content_script.js';
-    iframe.body?.appendChild(script);
+    this.iframe = new IFrame(document.querySelector('iframe')!);
   });
 };
 

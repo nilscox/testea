@@ -1,9 +1,8 @@
 const path = require('path');
 const { startDevServer, createConfiguration } = require('snowpack');
 
-const devServer = async (baseDir, specs) => {
+const devServer = async (baseDir, specs, dir) => {
   const [, config] = createConfiguration({
-    // install: ['@testing-library/user-event'],
     installOptions: {
       polyfillNode: true,
     },
@@ -15,7 +14,7 @@ const devServer = async (baseDir, specs) => {
     mount: {
       [path.join(baseDir, 'public')]: { url: '/', static: true },
       [path.join(baseDir, 'src')]: '/dist',
-      e2e: '/e2e',
+      [dir]: '/' + dir,
     },
     plugins: [['snowpack-plugin-test-runner', { specs }]],
   });
