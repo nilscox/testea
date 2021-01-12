@@ -17,7 +17,7 @@ const launch = async () => {
 
   await startEventsLoop(handleMochaLifecycle);
 
-  process.exit(0);
+  process.exit(Math.min(255, runner.stats.failures));
 };
 
 module.exports.launch = launch;
