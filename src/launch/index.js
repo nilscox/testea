@@ -1,16 +1,10 @@
 const fs = require('fs').promises;
-const glob = require('tiny-glob');
 
-const { devServer } = require('./devServer');
 const { browser } = require('./browser');
 const setupMocha = require('./mocha');
 
-const launch = async (baseDir, argv) => {
-  const files = await glob(argv.specs);
-  const specs = files.map(file => file.replace(/\.ts$/, '.js')).map(file => `'/${file}'`);
-
+const launch = async () => {
   const { runner, handleMochaLifecycle } = setupMocha();
-  const shutdown = await devServer(baseDir, specs, argv.dir);
   const { startEventsLoop, stopEventsLoop, takeScreenshot } = await browser();
 
   runner.on('end', stopEventsLoop);
@@ -22,7 +16,6 @@ const launch = async (baseDir, argv) => {
   });
 
   await startEventsLoop(handleMochaLifecycle);
-  await shutdown();
 
   process.exit(0);
 };

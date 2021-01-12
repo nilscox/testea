@@ -1,7 +1,3 @@
-import { getQueriesForElement, wait } from '@testing-library/dom';
-
-let queries = getQueriesForElement(document.body);
-
 export class IFrame {
   constructor(public readonly element: HTMLIFrameElement) {}
 
@@ -42,15 +38,10 @@ export class IFrame {
   }
 
   async navigate(url: string) {
-    return new Promise<typeof queries>(resolve => {
+    return new Promise<HTMLIFrameElement>(resolve => {
       this.element.onload = async () => {
         this.element.onload = null;
-
-        if (this.body) {
-          queries = getQueriesForElement(this.body);
-        }
-
-        resolve(queries);
+        resolve(this.element);
       };
 
       this.element.src = url;
