@@ -28,7 +28,7 @@ const browser = async () => {
   options.addArguments('--disable-web-security');
   options.addArguments('--user-data-dir=/tmp/test-runner');
   // options.addArguments(`--load-extension=${__dirname}/extension`);
-  options.addArguments('--window-size=800,450');
+  options.addArguments('--window-size=1920,1080');
 
   if (args.devtool) {
     options.addArguments('--auto-open-devtools-for-tabs');
