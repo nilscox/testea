@@ -17,26 +17,6 @@ export class IFrame {
     return this.contentWindow?.location;
   }
 
-  async clearCookies() {
-    const now = new Date().toUTCString();
-
-    this.document?.cookie.split(';').forEach(c => {
-      this.document!.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${now};path=/`);
-    });
-  }
-
-  async clearLocalStorage() {
-    return this.contentWindow?.localStorage.clear();
-  }
-
-  async getLocalStorageItem(key: string) {
-    return this.contentWindow?.localStorage.getItem(key);
-  }
-
-  async setLocalStorageItem(key: string, value: string) {
-    return this.contentWindow?.localStorage.setItem(key, value);
-  }
-
   async navigate(url: string) {
     return new Promise<HTMLIFrameElement>(resolve => {
       this.element.onload = async () => {
@@ -46,5 +26,66 @@ export class IFrame {
 
       this.element.src = url;
     });
+  }
+
+  getCookie(name: string) {
+    const document = this.getDocument('Cannot get cookie');
+
+    for (const str of document.cookie.split(/; */)) {
+      if (str.startsWith(name + '=')) {
+        return str.substr(name.length + 1);
+      }
+    }
+  }
+
+  setCookie(name: string, value: string, expires: Date, path = '/') {
+    const document = this.getDocument('Cannot set cookie');
+
+    document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=${path}`;
+  }
+
+  clearCookies() {
+    const document = this.getDocument('Cannot clear cookies');
+    const now = new Date();
+
+    for (const str of document.cookie.split(/; */)) {
+      const [key] = str.split('=', 1);
+
+      this.setCookie(key, '', now);
+    }
+  }
+
+  getLocalStorageItem(key: string) {
+    const window = this.getContentWindow('Cannot get local storage item');
+
+    return window.localStorage.getItem(key);
+  }
+
+  setLocalStorageItem(key: string, value: string) {
+    const window = this.getContentWindow('Cannot set local storage item');
+
+    return window.localStorage.setItem(key, value);
+  }
+
+  clearLocalStorage() {
+    const window = this.getContentWindow('Cannot clear local storage');
+
+    return window.localStorage.clear();
+  }
+
+  private getContentWindow(message: string) {
+    if (!this.contentWindow) {
+      throw new Error(message + ': iframe.contentWindow is undefined');
+    }
+
+    return this.contentWindow;
+  }
+
+  private getDocument(message: string) {
+    if (!this.document) {
+      throw new Error(message + ': iframe.document is undefined');
+    }
+
+    return this.document;
   }
 }
