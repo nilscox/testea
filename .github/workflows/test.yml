@@ -3,11 +3,20 @@ name: test
 on: [push]
 
 jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: yarn
+      - run: yarn build
+
   test:
     name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - run: yarn
       - run: yarn
         working-directory: ./demo
       - run: yarn build
@@ -15,6 +24,8 @@ jobs:
       - run: yarn serve -l 7357 build &
         working-directory: ./demo
       - run: yarn serve -l 8000 website &
+        working-directory: ./demo
+      - run: mkdir screenshots
         working-directory: ./demo
       - run: yarn test --headless --screenshots screenshots
         working-directory: ./demo
