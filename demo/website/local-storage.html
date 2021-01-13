@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  </head>
+  <body>
+    <p id="question">Life, the universe & everything?</p>
+    <p id="answer" />
+
+    <script>
+      const question = document.getElementById('question');
+      localStorage.setItem('question', question.textContent);
+
+      const answer = document.getElementById('answer');
+      answer.textContent = 'answer: ' + localStorage.getItem('answer');
+    </script>
+  </body>
+</html>

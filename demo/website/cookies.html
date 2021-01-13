@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  </head>
+  <body>
+    <p id="question">What's my name?</p>
+    <p id="answer" />
+
+    <script>
+      const question = document.getElementById('question');
+      document.cookie = 'question=' + question.textContent;
+
+      const answer = document.getElementById('answer');
+      const cookie = document.cookie.split(/; */).find((value) => value.startsWith('answer='));
+
+      if (cookie) {
+        answer.textContent = 'answer: ' + cookie.slice(7);
+      }
+    </script>
+  </body>
+</html>
