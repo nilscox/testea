@@ -59,7 +59,7 @@ const browser = async () => {
 
       events.forEach(handleMochaLifecycle);
 
-      await new Promise(resolve => setTimeout(resolve, 20));
+      await new Promise(resolve => setTimeout(resolve, 10));
     }
 
     await driver.quit();
