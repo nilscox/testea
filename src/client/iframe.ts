@@ -28,6 +28,10 @@ export class IFrame {
     });
   }
 
+  async reload() {
+    return this.navigate(this.element.src);
+  }
+
   getCookie(name: string) {
     const document = this.getDocument('Cannot get cookie');
 
