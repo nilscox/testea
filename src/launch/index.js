@@ -24,7 +24,13 @@ const launch = async () => {
   if (screenshots) {
     runner.on('fail', async function (test) {
       const screenshot = await takeScreenshot();
-      const filePath = path.join(screenshots, test.titlePath().join('_') + '.png');
+      const filePath = path.join(
+        screenshots,
+        test
+          .titlePath()
+          .join('_')
+          .replace(/[^-_0-9a-z]/i, '_') + '.png',
+      );
 
       await fs.writeFile(filePath, Buffer.from(screenshot, 'base64'));
     });
