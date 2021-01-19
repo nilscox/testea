@@ -3,7 +3,9 @@ import 'mocha/mocha.css';
 
 import chai from 'chai';
 import chaiDom from 'chai-dom';
-import { setup, IFrame } from '../../src/client';
+import { setup } from '../../src/client';
+
+import '../../src/client/testea.css';
 
 mocha.setup('bdd');
 chai.use(chaiDom);
