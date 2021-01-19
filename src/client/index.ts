@@ -36,9 +36,26 @@ const registerMochaLifecycles = async (runner: Mocha.Runner) => {
   });
 };
 
-export const setup = (runner: Mocha.Runner) => {
-  registerMochaLifecycles(runner);
+const setup = () => {
+  const container = document.createElement('div');
+  container.classList.add('container');
 
+  const iframe = document.createElement('iframe');
+  iframe.src = '';
+  iframe.width = '100%';
+  iframe.height = '100%';
+  iframe.frameBorder = '0';
+
+  const mocha = document.createElement('div');
+  mocha.id = 'mocha';
+
+  container.appendChild(mocha);
+  container.appendChild(iframe);
+
+  document.body.appendChild(container);
+};
+
+const run = (runner?: Mocha.Runner) => {
   before(function () {
     this.iframe = new IFrame(document.querySelector('iframe')!);
     window.iframe = this.iframe;
@@ -52,4 +69,11 @@ export const setup = (runner: Mocha.Runner) => {
       done();
     }
   });
+
+  registerMochaLifecycles(runner || mocha.run());
+};
+
+export default {
+  setup,
+  run,
 };

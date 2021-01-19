@@ -3,19 +3,20 @@ import 'mocha/mocha.css';
 
 import chai from 'chai';
 import chaiDom from 'chai-dom';
-import { setup } from '../../src/client';
+import testea from '../../src/client';
 
-import '../../src/client/testea.css';
-
-mocha.setup('bdd');
-chai.use(chaiDom);
+import '/testea.css';
 
 const main = async () => {
+  testea.setup();
+  mocha.setup('bdd');
+  chai.use(chaiDom);
+
   await import('./test');
   await import('./local-storage');
   await import('./cookies');
 
-  setup(mocha.run());
+  testea.run();
 };
 
 main().catch(console.error);

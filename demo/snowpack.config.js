@@ -6,9 +6,6 @@ module.exports = {
     src: { url: '/dist' },
     '../src': { url: '/test-runner' },
   },
-  alias: {
-    'test-runner': '../src/client',
-  },
   plugins: ['@snowpack/plugin-typescript'],
   optimize: {
     /* Example: Bundle your final build: */
