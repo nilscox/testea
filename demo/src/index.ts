@@ -14,7 +14,6 @@ const main = async () => {
   await import('./test');
   await import('./local-storage');
   await import('./cookies');
-  await import('./cah');
 
   setup(mocha.run());
 };

@@ -23,10 +23,19 @@ const registerMochaLifecycles = async (runner) => {
     });
 };
 export const setup = (runner) => {
+    registerMochaLifecycles(runner);
     before(function () {
         this.iframe = new IFrame(document.querySelector('iframe'));
         window.iframe = this.iframe;
     });
-    registerMochaLifecycles(runner);
+    // give time to the browser to take the screenshot
+    afterEach(function (done) {
+        if (this.currentTest?.isFailed()) {
+            setTimeout(done, 80);
+        }
+        else {
+            done();
+        }
+    });
 };
 //# sourceMappingURL=index.js.map
