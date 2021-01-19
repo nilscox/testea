@@ -1,26 +1,22 @@
 # Testea
 
-_Warning: this is a work in progress!_ (well, when I have time...)
+**Warning: this is a work in progress!** _(well, when I have time...)_
 
-Run end-to-end tests in the browser.
+As we build amazing web applications, we must be able to test them correctly. This tool provides a simple framework to write end-to-end tests that run directly inside a browser. It uses [selenium](https://www.selenium.dev/) to launch an automated browser and [mocha](https://mochajs.org/) as the test runner, and can easily be interfaced with other libraries.
 
-As we build amazing web applications, we must be able to test them corretly. This tool provides a simple framework to write end-to-end tests, that run directly in the browser. It uses selenium and mocha to run the tests in an automated browser, and can easily be interfaced with other libraries.
+Testea provides an iframe to open and navigate an app, where we can check that it is rendering and responding as expected. This can be achieved by querying the iframe directly or using a library like [testing-library](https://testing-library.com/).
 
-The idea is simple: testea provides an iframe to open and navigate an app, where we can check that the app is rendering as it should and that is responds correctly. This can be achieved by querying the iframe directly or using a library like `@testing-library/dom`.
+## How to
 
-## Introduction
+The idea is simple: Testea exposes an `IFrame` class instance which provides useful methods to navigate inside the iframe and access its body, local storage, cookies...
 
-What Testea gives you is an `IFrame` class instance that will be accessible inside your tests. It provides useful methods to navigate and access the iframe's body, local storage, cookies... But it also gives you a command line script to start a browser, run the tests inside it and forward the results to the console.
+Writing tests is fairly simple. All you need is to serve a frontend which contains the tests. This repository's `demo` folder shows an example project with tests written in typescript and transpiled / served using snowpack.
 
-Writing tests is fairly simple, you need to:
+When writing tests using [mocha in the browser](https://mochajs.org/#running-mocha-in-the-browser), the iframe instance will be accessible through mocha's context (e.g. `this.iframe`). All the methods available in the iframe instance are described in the [API](#API) section.
 
-- install testea
-- serve a frontend app containing the tests
-- run `yarn test-runner` to launch the browser
+About the project architecture, testea can be installed inside an already existing project, or in a dedicated project for the tests. Both senarios make sense.
 
-Testea can be added to an already existing frontend package, or to a dedicated package containing the tests. Both senarios are possible.
-
-### Installation
+**Installation**
 
 ```
 yarn add -D <this repository's url>
@@ -28,53 +24,47 @@ yarn add -D <this repository's url>
 
 > Note: testea is not available on the npm package registry
 
-### Writing the tests
+**Writing the tests**
 
-For the sake of simplicity, all the tests in this example will be written in a single `index.html` file. But in a real-world project, tests will most likely be transpiled and served using a build tool like webpack (have a look at this repository's demo folder, which uses snowpack to build the tests).
+For the sake of simplicity, this example is contained inside a single `index.html` file. Of course, in a real-world project tests will most likely be transpiled and served using a build tool.
 
-Here is the full frontend containing one test:
+Here is a basic structure to run tests using testea. The most relevant parts are:
+
+- calling `testea.setup()` before `mocha.setup()`
+- accessing the iframe using mocha's context (`this.iframe`)
+- calling `testea.run()` instead of `mocha.run()`
 
 ```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <link type="text/css" rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
-    <link type="text/css" rel="stylesheet" href="/style.css" />
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nilscox/testea/testea.css" />
   </head>
   <body>
-    <div class="container">
-      <div id="mocha"></div>
-      <iframe src="" width="100%" height="100%" frameborder="0"></iframe>
-    </div>
-
     <script src="https://unpkg.com/mocha/mocha.js"></script>
-
     <script type="module">
-      import { setup } from 'https://cdn.jsdelivr.net/gh/nilscox/test-runner/dist/index.js';
+      import testea from 'https://cdn.jsdelivr.net/gh/nilscox/testea';
 
+      testea.setup();
       mocha.setup('bdd');
 
       describe('hello testea', () => {
         it('query the iframe', async function () {
-          await iframe.navigate('http://localhost:8000');
+          await this.iframe.navigate('http://localhost:8000');
 
-          const searchInput = iframe.body.querySelector('[name="search"]');
+          const searchInput = this.iframe.body.querySelector('[name="search"]');
           // ...
         });
       });
 
-      const runner = mocha.run();
-
-      setup(runner);
+      testea.run();
     </script>
   </body>
 </html>
 ```
 
-So, this basic HTML file imports the necessary assets, such as some styles from mocha and testea, the code from mocha browser and the `setup` function from teastea.
-Then it declares a piece of javascrit code to setup mocha, define a test case, and call `mocha.run()`.
-
-Using @testing-library/dom, a test could look like:
+A more realistic example using `testing-library` could look like the following snippet. We use `@testing-library/dom`'s `getQueriesForElement` function to query elements inside the iframe, and `@testing-library/user-event`'s type function to manipulate them.
 
 ```ts
 it('should login', async function () {
@@ -83,25 +73,10 @@ it('should login', async function () {
   await iframe.navigate('http://localhost:8000/login');
   const { getByPlaceholderText, getByRole, findByText } = getQueriesForElement(iframe.body);
 
-  const emailField = getByPlaceholderText('Adresse email');
-  const passwordField = getByPlaceholderText('Mot de passe');
-  const loginButton = getByRole('button', { name: 'Connexion' });
+  await userEvent.type(getByPlaceholderText('Adresse email'), 'user6@domain.tld');
+  await userEvent.type(getByPlaceholderText('Mot de passe'), 'password');
 
-  expect(loginButton).to.have.attr('disabled');
-
-  await type(emailField, 'user6@domain.tld');
-  await type(passwordField, 'invalid');
-
-  expect(loginButton).not.to.have.attr('disabled');
-
-  click(loginButton);
-
-  findByText('Combinaison email / mot de passe non valide');
-
-  await clear(passwordField);
-  await type(passwordField, 'password');
-
-  click(loginButton);
+  userEvent.click(getByRole('button', { name: 'Connexion' }));
 
   await waitFor(() => expect(iframe.location?.pathname).to.eql('/welcome'));
 
@@ -109,13 +84,11 @@ it('should login', async function () {
 });
 ```
 
-In this example, we use `@testing-library/dom`'s `getQueriesForElement` function to get the standard query functions inside the iframe. Using them makes it very easy to query and manipulate the DOM (through `user-event`'s functions).
-
 > Tip: for easier debugging, the iframe instance is also exposed to the console
 
-### Launching the browser
+**Launching the browser**
 
-Now that the tests are ready, the browser can be started using `yarn testea <url>`. It will open a headed chrome instance, wait for the tests to finish and exit. The tests results will be automatically forwarded from the browser to the terminal's standard output, so we still have a feedback even when the browser is started in an headless environment (like in a CI).
+The browser can be started using `yarn testea <url>`. It will open a headed chrome instance, wait for the tests to finish and exit. The tests results will automatically be forwarded from the browser to the terminal's standard output, in order to have a feedback even when the browser runs in an headless environment.
 
 `testea` can be launched with:
 
@@ -126,13 +99,13 @@ Now that the tests are ready, the browser can be started using `yarn testea <url
 --devtool             : open the browser's devtool
 ```
 
-> Note: you can also run the tests in your browser, but you may need to teak it a little, like using chrome's `--disable-web-security` flag
+> Note: you can also run the tests in your own browser, but you may need to teak it a little, like using chrome's `--disable-web-security` flag
 
 ## API
 
 The `IFrame` class exposes the following properties and methods:
 
-```
+```ts
 get element(): HTMLIFrameElement
 get contentWindow(): Window | null
 get document(): Document | undefined
@@ -140,21 +113,21 @@ get body(): HTMLElement | undefined
 get location(): Location | undefined
 ```
 
-The actual iframe element and some of it's most common properties.
+The actual iframe element and some of its most common properties.
 
-```
-async navigate(url: string): Promise<HTMLIFrameElement>;
+```ts
+navigate(url: string): Promise<HTMLIFrameElement>;
 ```
 
 Navigate to the given URL. This method resolves when the iframe's onload function is called.
 
-```
+```ts
 reload(): Promise<HTMLIFrameElement>;
 ```
 
 Reload the current page.
 
-```
+```ts
 getCookie(name: string): string | undefined;
 setCookie(name: string, value: string, expires: Date, path?: string): void;
 clearCookies(): void;
@@ -162,7 +135,7 @@ clearCookies(): void;
 
 Access the iframe's cookies.
 
-```
+```ts
 getLocalStorageItem(key: string): string | null;
 setLocalStorageItem(key: string, value: string): void;
 clearLocalStorage(): void;
