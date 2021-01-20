@@ -28,8 +28,8 @@ const launch = async () => {
         screenshots,
         test
           .titlePath()
-          .join('_')
-          .replace(/[^-_0-9a-z]/i, '_') + '.png',
+          .join('__')
+          .replace(/[^-_0-9a-z ]/gi, '_') + '.png',
       );
 
       await fs.writeFile(filePath, Buffer.from(screenshot, 'base64'));
