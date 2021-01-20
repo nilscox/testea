@@ -1,6 +1,6 @@
 {
   "name": "testea",
-  "version": "1.0.2",
+  "version": "0.1.0",
   "description": "Run end-to-end tests in a browser",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
