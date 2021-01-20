@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: yarn && yarn build
-        working-directory: ../
+        working-directory: ./
       - run: yarn
       - run: yarn build
       - run: yarn serve -l 7357 build &
