@@ -3,9 +3,9 @@ import 'mocha/mocha.css';
 
 import chai from 'chai';
 import chaiDom from 'chai-dom';
-import testea from '../../src/client';
+import testea from 'testea';
 
-import '/testea.css';
+import 'testea/testea.css';
 
 const main = async () => {
   testea.setup();

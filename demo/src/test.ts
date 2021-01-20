@@ -5,7 +5,7 @@ describe('test', () => {
     expect(false).not.to.eql(true);
   });
 
-  it('should fail', () => {
+  it.skip('should fail', () => {
     expect(false).to.eql(6);
   });
 });

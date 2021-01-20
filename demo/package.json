@@ -15,7 +15,8 @@
     "@testing-library/user-event": "^12.6.0",
     "chai": "^4.2.0",
     "chai-dom": "^1.8.2",
-    "mocha": "^8.2.1"
+    "mocha": "^8.2.1",
+    "testea": "../"
   },
   "devDependencies": {
     "@snowpack/plugin-typescript": "^1.2.0",
