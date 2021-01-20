@@ -16,6 +16,7 @@
     "chai": "^4.2.0",
     "chai-dom": "^1.8.2",
     "mocha": "^8.2.1",
+    "sinon": "^9.2.3",
     "testea": "../"
   },
   "devDependencies": {
@@ -23,6 +24,7 @@
     "@types/chai": "^4.2.14",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^8.2.0",
+    "@types/sinon": "^9.0.10",
     "@types/snowpack-env": "^2.3.2",
     "prettier": "^2.0.5",
     "serve": "^11.3.2",

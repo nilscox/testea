@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { waitFor } from '@testing-library/dom';
-import { IFrame } from '../../src/client';
-import { navigate } from './utils/navigate';
+import { IFrame } from 'testea';
+
+const url = 'http://localhost:8000/local-storage.html';
 
 describe('local storage', () => {
   let iframe: IFrame;
@@ -11,32 +11,27 @@ describe('local storage', () => {
   });
 
   it('should get an item from the local storage', async () => {
-    await navigate(iframe, 'http://localhost:8000/local-storage.html');
+    await iframe.navigate(url);
 
-    await waitFor(() => {
-      expect(iframe.getLocalStorageItem('question')).to.eql('Life, the universe & everything?');
-    });
+    expect(iframe.getLocalStorageItem('question')).to.eql('Life, the universe & everything?');
   });
 
   it('should set an item to the local storage', async () => {
-    await navigate(iframe, 'http://localhost:8000/local-storage.html');
+    await iframe.navigate(url);
 
     iframe.setLocalStorageItem('answer', 'forty-two');
 
-    const { getByText } = await navigate(iframe, 'http://localhost:8000/local-storage.html');
+    await iframe.navigate(url);
 
-    await waitFor(() => {
-      expect(getByText('answer: forty-two')).to.be.visible;
-    });
+    const answer = iframe.document?.querySelector('#answer');
+    expect(answer?.textContent).to.match(/answer: forty-two/);
   });
 
   it('should clear the local storage', async () => {
-    await navigate(iframe, 'http://localhost:8000/local-storage.html');
+    await iframe.navigate(url);
 
     iframe.clearLocalStorage();
 
-    await waitFor(() => {
-      expect(iframe.getLocalStorageItem('question')).to.be.null;
-    });
+    expect(iframe.getLocalStorageItem('question')).to.be.null;
   });
 });

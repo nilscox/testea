@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <style>
+      body {
+        font-family: 'Courier New', Courier, monospace;
+        background: #fafafa;
+        color: #222;
+        margin: 0 5%;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      input,
+      textarea {
+        min-width: 380px;
+        display: block;
+        background: transparent;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 6px;
+      }
+
+      label {
+        margin: 12px 0;
+      }
+
+      .star {
+        margin: 6px;
+        color: #ccc;
+      }
+
+      .star.star-fill {
+        color: #ed4;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useEffect, useState } = React;
+
+      const Star = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+          <path
+            fill="currentColor"
+            d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z"
+          />
+        </svg>
+      );
+
+      const Rating = ({ value, onChange }) => {
+        return (
+          <>
+            {Array(5)
+              .fill(null)
+              .map((_, n) => n + 1)
+              .map((n) => (
+                <Star
+                  key={n}
+                  className={`star ${value >= n ? 'star-fill' : ''}`}
+                  onClick={() => onChange(n)}
+                  data-testid={`rating-${n}`}
+                />
+              ))}
+          </>
+        );
+      };
+
+      const FeedbacksForm = ({ onSend }) => {
+        const initialState = JSON.parse(localStorage.getItem('form')) || {
+          name: '',
+          email: '',
+          rating: undefined,
+          message: '',
+        };
+
+        const [name, setName] = useState(initialState.name);
+        const [email, setEmail] = useState(initialState.email);
+        const [rating, setRating] = useState(initialState.rating);
+        const [message, setMessage] = useState(initialState.message);
+
+        useEffect(() => {
+          localStorage.setItem('form', JSON.stringify({ name, email, rating, message }));
+        }, [name, email, rating, message]);
+
+        const handleSend = (e) => {
+          e.preventDefault();
+          onSend({ name, email, rating, message });
+        };
+
+        return (
+          <form onSubmit={handleSend}>
+            <label>
+              Your name
+              <input value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
+
+            <label>
+              Your email
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </label>
+
+            <label>
+              Overall rating
+              <div>
+                <Rating value={rating} onChange={setRating} />
+              </div>
+            </label>
+
+            <label>
+              Message
+              <textarea rows="6" value={message} onChange={(e) => setMessage(e.target.value)} />
+            </label>
+
+            <div>
+              <button type="submit">Submit</button>
+            </div>
+          </form>
+        );
+      };
+
+      const App = () => {
+        const handleSend = (data) => {
+          const ratingMessage = {
+            1: 'how disapointing :/',
+            2: "that's not very good...",
+            3: 'we can do better.',
+            4: "that's not too bad.",
+            5: 'thank you so much!!!',
+          };
+
+          alert(
+            [
+              `Thank you for your feedback, ${data.name}!`,
+              `You rated our app ${data.rating}/5, ${ratingMessage[data.rating]}`,
+              'Here is the message you sent:',
+              data.message,
+            ].join('\n\n'),
+          );
+        };
+
+        return (
+          <>
+            <h1>Send us your feedbacks</h1>
+
+            <p>
+              If you have any comments, questions or feedbacks you want to address us, please do using the
+              form below.
+            </p>
+
+            <FeedbacksForm onSend={handleSend} />
+          </>
+        );
+      };
+
+      ReactDOM.render(<App />, document.getElementById('app'));
+    </script>
+  </body>
+</html>
