@@ -14,24 +14,19 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./demo
     steps:
       - uses: actions/checkout@v1
+      - run: yarn && yarn build
+        working-directory: ../
       - run: yarn
       - run: yarn build
-      - run: yarn
-        working-directory: ./demo
-      - run: yarn add ../
-        working-directory: ./demo
-      - run: yarn build
-        working-directory: ./demo
       - run: yarn serve -l 7357 build &
-        working-directory: ./demo
       - run: yarn serve -l 8000 website &
-        working-directory: ./demo
       - run: mkdir screenshots
-        working-directory: ./demo
       - run: yarn test --headless --screenshots screenshots
-        working-directory: ./demo
       - uses: actions/upload-artifact@v2
         if: ${{ failure() }}
         with:
