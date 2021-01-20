@@ -5,4 +5,8 @@ declare global {
         iframe: HTMLIFrameElement;
     }
 }
-export declare const setup: (runner: Mocha.Runner) => void;
+declare const _default: {
+    setup: () => void;
+    run: (runner?: Mocha.Runner | undefined) => void;
+};
+export default _default;
