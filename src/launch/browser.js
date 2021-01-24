@@ -65,13 +65,20 @@ const browser = async () => {
     await driver.quit();
   };
 
-  const stopEventsLoop = () => {
+  const stopEventsLoop = async () => {
     running = false;
+    await new Promise(resolve => setTimeout(resolve, 20));
+  };
+
+  const getCoverage = async () => {
+    return driver.executeAsyncScript(onResult => {
+      onResult(window.iframe.contentWindow.__coverage__);
+    });
   };
 
   const takeScreenshot = () => driver.takeScreenshot();
 
-  return { startEventsLoop, stopEventsLoop, takeScreenshot };
+  return { startEventsLoop, stopEventsLoop, takeScreenshot, getCoverage };
 };
 
 module.exports.browser = browser;
