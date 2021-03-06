@@ -26,7 +26,7 @@ const saveScreenshot = async (filePath, screenshot) => {
 
 const launch = async argv => {
   const { runner, handleMochaLifecycle } = setupMocha();
-  const { startEventsLoop, stopEventsLoop, takeScreenshot } = await browser(argv);
+  const { startEventsLoop, stopEventsLoop, takeScreenshot } = await browser(argv.url, argv);
 
   runner.on('end', stopEventsLoop);
   // process.on('SIGINT', stopEventsLoop);

@@ -7,9 +7,15 @@ const { launch } = require('./src/launch');
 
 yargs(hideBin(process.argv))
   .command(
-    'run',
+    'run [url]',
     'launch a browser and start the tests',
     yargs => {
+      yargs.positional('url', {
+        describe: 'URL exposing the tests running with mocha in the browser',
+        type: 'string',
+        default: 'http://localhost:7357',
+      });
+
       yargs.option('headless', {
         describe: 'launch the browser in headless mode',
         type: 'boolean',
@@ -40,6 +46,11 @@ yargs(hideBin(process.argv))
         describe: 'specify a base directory where screenshots are saved',
         type: 'string',
         default: './screenshots',
+      });
+
+      yargs.option('hide-results', {
+        describe: "hide mocha runner's interface displaying the tests results",
+        type: 'boolean',
       });
 
       yargs.conflicts('headless', 'devtool');

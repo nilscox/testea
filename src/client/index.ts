@@ -50,6 +50,10 @@ const setup = () => {
   const mocha = document.createElement('div');
   mocha.id = 'mocha';
 
+  if (window.location.search === '?hide-results=true') {
+    mocha.classList.add('hide');
+  }
+
   container.appendChild(mocha);
   container.appendChild(iframe);
 

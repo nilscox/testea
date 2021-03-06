@@ -33,6 +33,9 @@ const setup = () => {
     iframe.frameBorder = '0';
     const mocha = document.createElement('div');
     mocha.id = 'mocha';
+    if (window.location.search === '?hide-results=true') {
+        mocha.classList.add('hide');
+    }
     container.appendChild(mocha);
     container.appendChild(iframe);
     document.body.appendChild(container);

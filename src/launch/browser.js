@@ -16,7 +16,7 @@ const handleUncaughtExceptions = driver => {
   process.on('uncaughtException', uncaughtException);
 };
 
-const browser = async ({ headless, windowSize, keepOpen, devtool }) => {
+const browser = async (url, { headless, windowSize, keepOpen, devtool, hideResults }) => {
   const options = new Options();
 
   options.addArguments('--disable-web-security');
@@ -40,7 +40,7 @@ const browser = async ({ headless, windowSize, keepOpen, devtool }) => {
 
   handleUncaughtExceptions(driver);
 
-  await driver.navigate().to('http://localhost:7357');
+  await driver.navigate().to(url + (hideResults ? '?hide-results=true' : ''));
 
   let running = true;
 

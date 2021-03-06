@@ -30,3 +30,7 @@ body {
 iframe {
   flex: 2;
 }
+
+.hide {
+  display: none;
+}
