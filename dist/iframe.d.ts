@@ -7,6 +7,7 @@ export declare class IFrame {
     get location(): Location | undefined;
     navigate(url: string): Promise<HTMLIFrameElement>;
     reload(): Promise<HTMLIFrameElement>;
+    takeScreenshot(path: string): Promise<void>;
     getCookie(name: string): string | undefined;
     setCookie(name: string, value: string, expires: Date, path?: string): void;
     clearCookies(): void;

@@ -16,6 +16,7 @@ const main = async () => {
   await import('./local-storage');
   await import('./cookies');
   await import('./testing-library');
+  await import('./screenshot');
 
   testea.run();
 };

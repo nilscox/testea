@@ -32,6 +32,11 @@ export class IFrame {
     return this.navigate(this.element.src);
   }
 
+  async takeScreenshot(path: string) {
+    window.__TESTEA_EVENTS__.push({ type: 'screenshot', path });
+    await new Promise(r => setTimeout(r, 100));
+  }
+
   getCookie(name: string) {
     const document = this.getDocument('Cannot get cookie');
 

@@ -1,6 +1,7 @@
 import { IFrame } from './iframe.js';
 export { IFrame } from './iframe.js';
 window.__MOCHA_EVENTS__ = [];
+window.__TESTEA_EVENTS__ = [];
 const onLifecycleHook = (target, event, payload) => {
     // console.log(event, payload);
     window.__MOCHA_EVENTS__.push({ target, event, payload });
@@ -44,7 +45,7 @@ const run = (runner) => {
     // give time to the browser to take the screenshot
     afterEach(function (done) {
         if (this.currentTest?.isFailed()) {
-            setTimeout(done, 80);
+            setTimeout(done, 100);
         }
         else {
             done();

@@ -8,7 +8,9 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build",
-    "test": "../index.js"
+    "testea": "../index.js",
+    "test": "testea run",
+    "test:headless": "testea run --headless"
   },
   "dependencies": {
     "@testing-library/dom": "^7.29.4",

@@ -4,39 +4,58 @@ const path = require('path');
 const { browser } = require('./browser');
 const setupMocha = require('./mocha');
 
-const arg = name => {
-  const idx = process.argv.indexOf(name);
+const saveScreenshot = async (filePath, screenshot) => {
+  const dirPath = path.dirname(filePath);
 
-  if (idx > 0) {
-    return process.argv[idx + 1] || true;
+  try {
+    const stats = await fs.stat(dirPath);
+
+    if (stats && !stats.isDirectory()) {
+      throw new Error(`Cannot save screenshot: ${dirPath} exists and is not a directory`);
+    }
+  } catch (e) {
+    if (e.message.match(/ENOENT/)) {
+      await fs.mkdir(dirPath, { recursive: true });
+    } else {
+      throw e;
+    }
   }
+
+  return fs.writeFile(filePath, Buffer.from(screenshot, 'base64'));
 };
 
-const launch = async () => {
-  const screenshots = arg('--screenshots');
-
+const launch = async argv => {
   const { runner, handleMochaLifecycle } = setupMocha();
-  const { startEventsLoop, stopEventsLoop, takeScreenshot } = await browser();
+  const { startEventsLoop, stopEventsLoop, takeScreenshot } = await browser(argv);
 
   runner.on('end', stopEventsLoop);
   // process.on('SIGINT', stopEventsLoop);
 
-  if (screenshots) {
-    runner.on('fail', async function (test) {
-      const screenshot = await takeScreenshot();
-      const filePath = path.join(
-        screenshots,
-        test
-          .titlePath()
-          .join('__')
-          .replace(/[^-_0-9a-z ]/gi, '_') + '.png',
-      );
+  runner.on('fail', async function (test) {
+    if (!argv.screenshot) {
+      return;
+    }
 
-      await fs.writeFile(filePath, Buffer.from(screenshot, 'base64'));
-    });
-  }
+    const screenshot = await takeScreenshot();
 
-  await startEventsLoop(handleMochaLifecycle);
+    const filePath = path.join(
+      argv.screenshotsDir,
+      test
+        .titlePath()
+        .map(s => s.replace(/[^-_0-9a-z ]/gi, '_'))
+        .join('/') + '.png',
+    );
+
+    await saveScreenshot(filePath, screenshot);
+  });
+
+  const handleTesteaEvent = async event => {
+    if (event.type === 'screenshot') {
+      await saveScreenshot(path.join(argv.screenshotsDir, event.path), await takeScreenshot());
+    }
+  };
+
+  await startEventsLoop(handleMochaLifecycle, handleTesteaEvent);
 
   process.exit(Math.min(255, runner.stats.failures));
 };

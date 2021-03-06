@@ -16,25 +16,19 @@ const handleUncaughtExceptions = driver => {
   process.on('uncaughtException', uncaughtException);
 };
 
-const browser = async () => {
-  const args = {
-    headless: process.argv.includes('--headless'),
-    keepOpen: process.argv.includes('--keep-open'),
-    devtool: process.argv.includes('--devtool'),
-  };
-
+const browser = async ({ headless, windowSize, keepOpen, devtool }) => {
   const options = new Options();
 
   options.addArguments('--disable-web-security');
   options.addArguments('--user-data-dir=/tmp/test-runner');
   // options.addArguments(`--load-extension=${__dirname}/extension`);
-  options.addArguments('--window-size=1920,1080');
+  options.addArguments('--window-size=' + windowSize);
 
-  if (args.devtool) {
+  if (devtool) {
     options.addArguments('--auto-open-devtools-for-tabs');
   }
 
-  if (args.headless) {
+  if (headless) {
     options.addArguments('--headless');
   }
 
@@ -50,14 +44,31 @@ const browser = async () => {
 
   let running = true;
 
-  const startEventsLoop = async handleMochaLifecycle => {
-    while (running || args.keepOpen) {
-      const events = await driver.executeAsyncScript(onResult => {
-        onResult(window.__MOCHA_EVENTS__ || []);
-        window.__MOCHA_EVENTS__ = [];
-      });
+  const startEventsLoop = async (handleMochaLifecycle, handleTesteaEvent) => {
+    while (running || keepOpen) {
+      const captureWindowEvents = onResult => {
+        onResult({
+          mocha: window.__MOCHA_EVENTS__ || [],
+          testea: window.__TESTEA_EVENTS__ || [],
+        });
 
-      events.forEach(handleMochaLifecycle);
+        window.__MOCHA_EVENTS__ = [];
+        window.__TESTEA__ = [];
+      };
+
+      try {
+        const events = await driver.executeAsyncScript(captureWindowEvents);
+
+        if (events) {
+          events.mocha.forEach(handleMochaLifecycle);
+          events.testea.forEach(handleTesteaEvent);
+        }
+      } catch (e) {
+        if (e.message.match('target window already closed')) {
+          stopEventsLoop();
+          process.exit(0);
+        }
+      }
 
       await new Promise(resolve => setTimeout(resolve, 10));
     }

@@ -8,6 +8,7 @@ declare global {
 }
 
 window.__MOCHA_EVENTS__ = [];
+window.__TESTEA_EVENTS__ = [];
 
 const onLifecycleHook = (target: string, event: string, payload: {}) => {
   // console.log(event, payload);
@@ -64,7 +65,7 @@ const run = (runner?: Mocha.Runner) => {
   // give time to the browser to take the screenshot
   afterEach(function (done) {
     if (this.currentTest?.isFailed()) {
-      setTimeout(done, 80);
+      setTimeout(done, 100);
     } else {
       done();
     }
