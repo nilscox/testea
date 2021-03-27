@@ -1,5 +1,6 @@
 const { Builder, Capabilities } = require('selenium-webdriver');
 const { Options } = require('selenium-webdriver/chrome');
+const queryString = require('query-string');
 
 const handleUncaughtExceptions = driver => {
   const unhandledRejection = reason => {
@@ -16,7 +17,7 @@ const handleUncaughtExceptions = driver => {
   process.on('uncaughtException', uncaughtException);
 };
 
-const browser = async (url, { headless, windowSize, keepOpen, devtool, hideResults }) => {
+const browser = async (url, { headless, windowSize, iframeSize, keepOpen, devtool, hideResults }) => {
   const options = new Options();
 
   options.addArguments('--disable-web-security');
@@ -40,22 +41,27 @@ const browser = async (url, { headless, windowSize, keepOpen, devtool, hideResul
 
   handleUncaughtExceptions(driver);
 
-  await driver.navigate().to(url + (hideResults ? '?hide-results=true' : ''));
+  const query = queryString.stringify({
+    'iframe-size': iframeSize,
+    'hide-results': hideResults,
+  });
+
+  await driver.navigate().to([url, query].join('?'));
 
   let running = true;
 
   const startEventsLoop = async (handleMochaLifecycle, handleTesteaEvent) => {
-    while (running || keepOpen) {
-      const captureWindowEvents = onResult => {
-        onResult({
-          mocha: window.__MOCHA_EVENTS__ || [],
-          testea: window.__TESTEA_EVENTS__ || [],
-        });
+    const captureWindowEvents = onResult => {
+      onResult({
+        mocha: window.__MOCHA_EVENTS__ || [],
+        testea: window.__TESTEA_EVENTS__ || [],
+      });
 
-        window.__MOCHA_EVENTS__ = [];
-        window.__TESTEA__ = [];
-      };
+      window.__MOCHA_EVENTS__ = [];
+      window.__TESTEA__ = [];
+    };
 
+    while (running) {
       try {
         const events = await driver.executeAsyncScript(captureWindowEvents);
 
@@ -73,7 +79,9 @@ const browser = async (url, { headless, windowSize, keepOpen, devtool, hideResul
       await new Promise(resolve => setTimeout(resolve, 10));
     }
 
-    await driver.quit();
+    if (!keepOpen) {
+      await driver.quit();
+    }
   };
 
   const stopEventsLoop = () => {

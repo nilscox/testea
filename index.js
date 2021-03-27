@@ -27,6 +27,11 @@ yargs(hideBin(process.argv))
         default: '1920,1080',
       });
 
+      yargs.option('iframe-size', {
+        describe: 'specify the size of the iframe containing the app',
+        type: 'string',
+      });
+
       yargs.option('keep-open', {
         describe: 'keep the browser open when all tests ended',
         type: 'boolean',
@@ -54,6 +59,7 @@ yargs(hideBin(process.argv))
       });
 
       yargs.conflicts('headless', 'devtool');
+      yargs.conflicts('headless', 'keep-open');
     },
     launch,
   )

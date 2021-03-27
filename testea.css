@@ -27,7 +27,7 @@ body {
   position: absolute !important;
 }
 
-iframe {
+#iframe-container {
   flex: 2;
 }
 

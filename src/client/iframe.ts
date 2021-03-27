@@ -37,6 +37,11 @@ export class IFrame {
     await new Promise(r => setTimeout(r, 100));
   }
 
+  setViewportSize(width: number | string, height: number | string) {
+    this.element.style.width = width + (typeof width === 'number' ? 'px' : '');
+    this.element.style.height = height + (typeof height === 'number' ? 'px' : '');
+  }
+
   getCookie(name: string) {
     const document = this.getDocument('Cannot get cookie');
 

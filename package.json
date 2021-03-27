@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "mocha": "^8.2.1",
+    "query-string": "^6.14.1",
     "selenium-webdriver": "^4.0.0-alpha.8",
     "yargs": "^16.2.0"
   },
