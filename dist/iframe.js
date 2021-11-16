@@ -1,4 +1,5 @@
 export class IFrame {
+    element;
     constructor(element) {
         this.element = element;
     }
@@ -29,6 +30,10 @@ export class IFrame {
     async takeScreenshot(path) {
         window.__TESTEA_EVENTS__.push({ type: 'screenshot', path });
         await new Promise(r => setTimeout(r, 100));
+    }
+    setViewportSize(width, height) {
+        this.element.style.width = width + (typeof width === 'number' ? 'px' : '');
+        this.element.style.height = height + (typeof height === 'number' ? 'px' : '');
     }
     getCookie(name) {
         const document = this.getDocument('Cannot get cookie');

@@ -8,6 +8,7 @@ export declare class IFrame {
     navigate(url: string): Promise<HTMLIFrameElement>;
     reload(): Promise<HTMLIFrameElement>;
     takeScreenshot(path: string): Promise<void>;
+    setViewportSize(width: number | string, height: number | string): void;
     getCookie(name: string): string | undefined;
     setCookie(name: string, value: string, expires: Date, path?: string): void;
     clearCookies(): void;
